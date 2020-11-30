@@ -27,11 +27,25 @@
 
 // Built using code from: https://wordpress.org/support/topic/plugin-polylang-identical-page-names-in-different-languages?replies=8#post-2669927
 
-// Check if PLL exists & the minimum version is correct.
-if ( ! defined( 'POLYLANG_VERSION' ) || version_compare( POLYLANG_VERSION, '1.7', '=<' ) || version_compare( $GLOBALS[ 'wp_version' ], '4.0', '=<' ) ) {
-	add_action( 'admin_notices', 'polylang_slug_admin_notices' );
-	return;
+/**
+ * Add all actions and filters after other plugins have loaded.
+ *
+ * @return void
+ */
+function polylang_slug_init() {
+	// Check if PLL exists & the minimum version is correct.
+	if ( ! defined( 'POLYLANG_VERSION' ) || version_compare( POLYLANG_VERSION, '1.7', '=<' ) || version_compare( $GLOBALS[ 'wp_version' ], '4.0', '=<' ) ) {
+		add_action( 'admin_notices', 'polylang_slug_admin_notices' );
+		return;
+	}
+
+	add_filter( 'wp_unique_post_slug', 'polylang_slug_unique_slug_in_language', 10, 6 );
+	add_filter( 'query', 'polylang_slug_filter_queries' );
+	add_filter( 'posts_where', 'polylang_slug_posts_where_filter', 10, 2 );
+	add_filter( 'posts_join', 'polylang_slug_posts_join_filter', 10, 2 );
 }
+add_action( 'plugins_loaded', 'polylang_slug_init' );
+
 
 /**
  * Minimum version admin notice.
@@ -110,7 +124,6 @@ function polylang_slug_unique_slug_in_language( $slug, $post_ID, $post_status, $
 	}
 
 }
-add_filter( 'wp_unique_post_slug', 'polylang_slug_unique_slug_in_language', 10, 6 );
 
 /**
  * Modify the sql query to include checks for the current language.
@@ -182,7 +195,6 @@ function polylang_slug_filter_queries( $query ) {
 
 	return $query;
 }
-add_filter( 'query', 'polylang_slug_filter_queries' );
 
 /**
  * Extend the WHERE clause of the query.
@@ -209,7 +221,6 @@ function polylang_slug_posts_where_filter( $where, $query ) {
 
 	return $where;
 }
-add_filter( 'posts_where', 'polylang_slug_posts_where_filter', 10, 2 );
 
 /**
  * Extend the JOIN clause of the query.
@@ -235,7 +246,6 @@ function polylang_slug_posts_join_filter( $join, $query ) {
 
 	return $join;
 }
-add_filter( 'posts_join', 'polylang_slug_posts_join_filter', 10, 2 );
 
 /**
  * Check if the query needs to be adapted.
