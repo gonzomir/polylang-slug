@@ -34,7 +34,7 @@
  */
 function polylang_slug_init() {
 	// Check if PLL exists & the minimum version is correct.
-	if ( ! defined( 'POLYLANG_VERSION' ) || version_compare( POLYLANG_VERSION, '1.7', '=<' ) || version_compare( $GLOBALS[ 'wp_version' ], '4.0', '=<' ) ) {
+	if ( ! defined( 'POLYLANG_VERSION' ) || version_compare( POLYLANG_VERSION, '1.7', '<=' ) || version_compare( $GLOBALS[ 'wp_version' ], '4.0', '<=' ) ) {
 		add_action( 'admin_notices', 'polylang_slug_admin_notices' );
 		return;
 	}
