@@ -16,13 +16,16 @@
  * Plugin URI:        https://github.com/grappler/polylang-slug
  * GitHub Plugin URI: https://github.com/grappler/polylang-slug
  * Description:       Allows same slug for multiple languages in Polylang
- * Version:           0.2.2
+ * Version:           0.2.3
+ * Requires at least: 4.0
+ * Requires PHP:      5.3
  * Author:            Ulrich Pogson
  * Author URI:        http://ulrich.pogson.ch/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       polylang-slug
  * Domain Path:       /languages
+ * Update URI:        false
  */
 
 // Built using code from: https://wordpress.org/support/topic/plugin-polylang-identical-page-names-in-different-languages?replies=8#post-2669927
@@ -45,7 +48,6 @@ function polylang_slug_init() {
 	add_filter( 'posts_join', 'polylang_slug_posts_join_filter', 10, 2 );
 }
 add_action( 'plugins_loaded', 'polylang_slug_init' );
-
 
 /**
  * Minimum version admin notice.
@@ -119,10 +121,9 @@ function polylang_slug_unique_slug_in_language( $slug, $post_ID, $post_status, $
 
 	if ( ! $post_name_check ) {
 		return $original_slug;
-	} else {
-		return $slug;
 	}
 
+	return $slug;
 }
 
 /**
@@ -190,10 +191,7 @@ function polylang_slug_filter_queries( $query ) {
 	 * @param string $join_clause  INNER JOIN Polylang clause.
 	 * @param string $where_clause Additional Polylang WHERE clause.
 	 */
-	$query = apply_filters( 'polylang_slug_sql_query', $sql_query, $matches, $join_clause, $where_clause );
-
-
-	return $query;
+	return apply_filters( 'polylang_slug_sql_query', $sql_query, $matches, $join_clause, $where_clause );
 }
 
 /**
@@ -279,11 +277,7 @@ function polylang_slug_should_run( $query = '' ) {
 	// Checks if the post type is translated when doing a custom query with the post type defined
 	$is_translated = ! empty( $query->query['post_type'] ) && ! pll_is_translated_post_type( $query->query['post_type'] );
 
-	if ( empty( $lang ) || $is_translated ) {
-		return false;
-	} else {
-		return true;
-	}
+	return ! ( empty( $lang ) || $is_translated );
 }
 
 /**
@@ -320,9 +314,8 @@ function polylang_slug_model_post_join_clause() {
 	} elseif ( array_key_exists( 'polylang', $GLOBALS ) ) {
 		global $polylang;
 		return $polylang->model->join_clause( 'post' );
-	} else {
-		return;
 	}
+	return '';
 }
 
 /**
@@ -340,7 +333,6 @@ function polylang_slug_model_post_where_clause( $lang = '' ) {
 	} elseif ( array_key_exists( 'polylang', $GLOBALS ) ) {
 		global $polylang;
 		return $polylang->model->where_clause( $lang, 'post' );
-	} else {
-		return;
 	}
+	return '';
 }
